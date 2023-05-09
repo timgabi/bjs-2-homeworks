@@ -1,25 +1,21 @@
+//Задача № 1
 function cachingDecoratorNew(func) {
   let cache = [];
- 
-  function wrapper(...args) {
-    const hash = (md5(args.join(',')));
-    let objectInCache = cache.findIndex((item) => item.hash == hash);
-    if (objectInCache in cache) {
-      console.log("Из кэша: " + cache[objectInCache].value);
-      return "Из кэша: " + cache[objectInCache].value;
+  function wrapper(...args) {    
+    const hash = md5(JSON.stringify(args));    
+    let objectInCache = cache.find((obj) => obj.hash === hash);
+    if (objectInCache) {      
+      console.log(`Из кэша: ${objectInCache.result}`);
+      return `Из кэша: ${objectInCache.result}`;
     }
- 
-    let result = func(...args);
-    cache.push({
-      'hash': hash,
-      'value': result
-    });
+    let result = func(...args);    
+    cache.push({ hash, result });     
     if (cache.length > 5) {
-      cache.shift();
+      cache.shift();     
     }
-    console.log("Вычисляем: " + result);
-    return "Вычисляем: " + result;
-  }
+    console.log(`Вычисляем: ${result}`);
+    return `Вычисляем: ${result}`;  
+  }  
   return wrapper;
 }
 
@@ -29,13 +25,21 @@ function debounceDecoratorNew(func, delay) {
   function wrapper(...args) {
     if (timer === null) {
       func(...args);
-      clearTimeout(timer);
-      timer = setTimeout(() => func(...args), delay);
       wrapper.count++;
     }
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+      func(...args);
+      wrapper.count++;
+    }, delay);
     wrapper.allCount++;
   }
   wrapper.count = 0;
   wrapper.allCount = 0;
   return wrapper;
 }
+
+
+
+
+
